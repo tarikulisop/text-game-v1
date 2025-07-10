@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Typing Game</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #4d96ff;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+        
+        .difficulty-selector {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .difficulty-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 50px;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .difficulty-btn.active {
+            background-color: #4d96ff;
+            color: white;
+        }
+        
+        .difficulty-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .display-area {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .target-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        
+        .input-area {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .stat-box {
+            background-color: #f0f8ff;
+            border-radius: 10px;
+            padding: 10px 15px;
+            min-width: 100px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            height: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #4d96ff;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            background-color: #4d96ff;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(77, 150, 255, 0.4);
+        }
+        
+        .character {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .space-character {
+            display: inline-block;
+            width: 10px;
+        }
+        
+        .correct {
+            color: #4CAF50;
+        }
+        
+        .incorrect {
+            color: #f44336;
+            text-decoration: underline;
+        }
+        
+        .current {
+            background-color: #ffeb3b;
+            border-radius: 3px;
+        }
+        
+        /* Leaderboard styles */
+        .leaderboard {
+            display: none;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 103;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .leaderboard-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .leaderboard-tab {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .leaderboard-tab.active {
+            color: #4d96ff;
+            border-bottom: 2px solid #4d96ff;
+        }
+        
+        .leaderboard-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .leaderboard-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .leaderboard-item.current-player {
+            background-color: #e6f7ff;
+        }
+        
+        .player-info {
+            flex-grow: 1;
+            text-align: left;
+        }
+        
+        .player-stats {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+        
+        .show-leaderboard {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4d96ff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 99;
+        }
+        
+        /* Welcome modal */
+        .welcome-modal {
+            display: flex;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 102;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Student Typing Challenge</h1>
+        <p class="subtitle">Improve your typing speed and accuracy!</p>
+        
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" data-level="easy">Easy</button>
+            <button class="difficulty-btn" data-level="medium">Medium</button>
+            <button class="difficulty-btn" data-level="hard">Hard</button>
+        </div>
+        
+        <div class="display-area">
+            <div id="target-text" class="target-text"></div>
+            <input type="text" id="input-area" class="input-area" placeholder="Start typing here..." autocomplete="off">
+        </div>
+        
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div id="wpm" class="stat-value">0</div>
+                <div class="stat-label">WPM</div>
+            </div>
+            <div class="stat-box">
+                <div id="accuracy" class="stat-value">100%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-box">
+                <div id="score" class="stat-value">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-box">
+                <div id="level" class="stat-value">1</div>
+                <div class="stat-label">Level</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="new-text-btn" class="btn">New Text</button>
+            <button id="reset-btn" class="btn">Reset</button>
+        </div>
+    </div>
+    
+    <button id="show-leaderboard" class="show-leaderboard">🏆</button>
+    
+    <div id="leaderboard" class="leaderboard">
+        <button id="close-leaderboard" class="leaderboard-btn">×</button>
+        <h2>Top Typers</h2>
+        
+        <div class="leaderboard-tabs">
+            <button class="leaderboard-tab active" data-sort="level">By Level</button>
+            <button class="leaderboard-tab" data-sort="score">By Score</button>
+        </div>
+        
+        <ul class="leaderboard-list" id="leaderboard-body">
+            <!-- Leaderboard items will be added here -->
+        </ul>
+    </div>
+    
+    <div id="welcome-modal" class="welcome-modal">
+        <h2>Welcome to Typing Challenge!</h2>
+        <div class="form-group">
+            <label for="student-name">Your Name:</label>
+            <input type="text" id="student-name" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+            <label for="batch-number">Batch Number:</label>
+            <input type="text" id="batch-number" placeholder="Enter your batch">
+        </div>
+        <button id="start-game-btn" class="btn">Start Game</button>
+    </div>
+
+    <script>
+        // Game data
+        const texts = {
+            easy: [
+                "The quick brown fox jumps over the lazy dog.",
+                "Learning to type is fun and useful.",
+                "Practice makes perfect in typing.",
+                "Keep your fingers on the home row keys."
+            ],
+            medium: [
+                "Typing is an essential skill in the digital age.",
+                "Proper posture is important when typing.",
+                "Accuracy is more important than speed when learning."
+            ],
+            hard: [
+                "The ability to type efficiently is crucial in our technology-driven society.",
+                "Modern keyboarding techniques emphasize ergonomic considerations."
+            ]
+        };
+        
+        // Game state
+        let difficulty = 'easy';
+        let currentText = '';
+        let typedText = '';
+        let startTime = 0;
+        let endTime = 0;
+        let totalCorrect = 0;
+        let totalTyped = 0;
+        let score = 0;
+        let level = 1;
+        let levelProgress = 0;
+        let studentName = '';
+        let batchNumber = '';
+        
+        // Leaderboard data
+        let leaderboardData = JSON.parse(localStorage.getItem('typingLeaderboard')) || [];
+        
+        // DOM elements
+        const targetTextElement = document.getElementById('target-text');
+        const inputArea = document.getElementById('input-area');
+        const wpmElement = document.getElementById('wpm');
+        const accuracyElement = document.getElementById('accuracy');
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const progressBar = document.getElementById('progress-bar');
+        const welcomeModal = document.getElementById('welcome-modal');
+        const leaderboard = document.getElementById('leaderboard');
+        const leaderboardBody = document.getElementById('leaderboard-body');
+        
+        // Initialize the game
+        function initGame() {
+            // Load saved player data if exists
+            const savedPlayer = JSON.parse(localStorage.getItem('currentPlayer'));
+            if (savedPlayer) {
+                document.getElementById('student-name').value = savedPlayer.name || '';
+                document.getElementById('batch-number').value = savedPlayer.batch || '';
+            }
+            
+            // Set up event listeners
+            document.getElementById('start-game-btn').addEventListener('click', startGame);
+            document.getElementById('show-leaderboard').addEventListener('click', showLeaderboard);
+            document.getElementById('close-leaderboard').addEventListener('click', hideLeaderboard);
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    difficulty = btn.dataset.level;
+                    newText();
+                });
+            });
+            
+            // Set up leaderboard tabs
+            document.querySelectorAll('.leaderboard-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.leaderboard-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    renderLeaderboard(tab.dataset.sort);
+                });
+            });
+            
+            // Start with welcome modal
+            welcomeModal.style.display = 'flex';
+        }
+        
+        // Start the game
+        function startGame() {
+            studentName = document.getElementById('student-name').value.trim();
+            batchNumber = document.getElementById('batch-number').value.trim();
+            
+            if (!studentName) {
+                alert('Please enter your name to continue');
+                return;
+            }
+            
+            // Save player info
+            localStorage.setItem('currentPlayer', JSON.stringify({
+                name: studentName,
+                batch: batchNumber
+            }));
+            
+            welcomeModal.style.display = 'none';
+            newText();
+        }
+        
+        // Load a new typing text
+        function newText() {
+            currentText = getRandomText();
+            typedText = '';
+            totalCorrect = 0;
+            totalTyped = 0;
+            
+            renderText();
+            inputArea.value = '';
+            inputArea.focus();
+            
+            startTime = Date.now();
+        }
+        
+        // Render the text with formatting
+        function renderText() {
+            targetTextElement.innerHTML = '';
+            
+            for (let i = 0; i < currentText.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'character';
+                
+                if (currentText[i] === ' ') {
+                    span.innerHTML = '&nbsp;';
+                    span.className = 'space-character';
+                } else {
+                    span.textContent = currentText[i];
+                }
+                
+                if (i < typedText.length) {
+                    span.classList.add(typedText[i] === currentText[i] ? 'correct' : 'incorrect');
+                } else if (i === typedText.length) {
+                    span.classList.add('current');
+                }
+                
+                targetTextElement.appendChild(span);
+            }
+        }
+        
+        // Handle typing input
+        inputArea.addEventListener('input', function(e) {
+            typedText = e.target.value;
+            totalTyped++;
+            
+            // Check if current character is correct
+            if (typedText[typedText.length - 1] === currentText[typedText.length - 1]) {
+                totalCorrect++;
+            }
+            
+            renderText();
+            
+            // Check if text is completed
+            if (typedText.length === currentText.length) {
+                endTime = Date.now();
+                calculateStats();
+                
+                // Add delay before next text
+                setTimeout(newText, 1500);
+            }
+        });
+        
+        // Calculate and display stats
+        function calculateStats() {
+            const timeInMinutes = (endTime - startTime) / 60000;
+            const words = currentText.split(' ').length;
+            const wpm = Math.round(words / timeInMinutes);
+            const accuracy = Math.round((totalCorrect / totalTyped) * 100);
+            
+            // Update score and level
+            score += wpm * accuracy / 10;
+            levelProgress += wpm * accuracy / 100;
+            
+            if (levelProgress >= level * 10) {
+                level++;
+                levelProgress = 0;
+            }
+            
+            // Update UI
+            wpmElement.textContent = wpm;
+            accuracyElement.textContent = `${accuracy}%`;
+            scoreElement.textContent = Math.round(score);
+            levelElement.textContent = level;
+            progressBar.style.width = `${(levelProgress % (level * 10)) / (level * 10) * 100}%`;
+            
+            // Update leaderboard
+            updateLeaderboard();
+        }
+        
+        // Update leaderboard data
+        function updateLeaderboard() {
+            // Find existing player or add new
+            const existingIndex = leaderboardData.findIndex(
+                p => p.name === studentName && p.batch === batchNumber
+            );
+            
+            const playerData = {
+                name: studentName,
+                batch: batchNumber,
+                score: Math.round(score),
+                level: level,
+                lastPlayed: new Date().toISOString()
+            };
+            
+            if (existingIndex >= 0) {
+                // Update if current score is higher
+                if (score > leaderboardData[existingIndex].score) {
+                    leaderboardData[existingIndex] = playerData;
+                }
+            } else {
+                leaderboardData.push(playerData);
+            }
+            
+            // Sort and keep top 10
+            leaderboardData.sort((a, b) => b.score - a.score);
+            if (leaderboardData.length > 10) {
+                leaderboardData = leaderboardData.slice(0, 10);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('typingLeaderboard', JSON.stringify(leaderboardData));
+            
+            // Update leaderboard display
+            renderLeaderboard();
+        }
+        
+        // Render the leaderboard
+        function renderLeaderboard(sortBy = 'level') {
+            leaderboardBody.innerHTML = '';
+            
+            // Sort data
+            const sortedData = [...leaderboardData].sort((a, b) => {
+                if (sortBy === 'level') {
+                    return b.level - a.level || b.score - a.score;
+                } else {
+                    return b.score - a.score || b.level - a.level;
+                }
+            });
+            
+            // Create list items
+            sortedData.slice(0, 10).forEach((player, index) => {
+                const item = document.createElement('li');
+                item.className = 'leaderboard-item';
+                
+                // Highlight current player
+                if (player.name === studentName && player.batch === batchNumber) {
+                    item.classList.add('current-player');
+                }
+                
+                item.innerHTML = `
+                    <div class="player-info">
+                        <strong>${index + 1}. ${player.name} (Batch ${player.batch || '?'})</strong>
+                    </div>
+                    <div class="player-stats">
+                        <span class="stat-value">Score: ${player.score}</span>
+                        <span>Level: ${player.level}</span>
+                    </div>
+                `;
+                
+                leaderboardBody.appendChild(item);
+            });
+        }
+        
+        // Show leaderboard
+        function showLeaderboard() {
+            renderLeaderboard();
+            leaderboard.style.display = 'block';
+        }
+        
+        // Hide leaderboard
+        function hideLeaderboard() {
+            leaderboard.style.display = 'none';
+        }
+        
+        // Get random text based on difficulty
+        function getRandomText() {
+            const textList = texts[difficulty];
+            return textList[Math.floor(Math.random() * textList.length)];
+        }
+        
+        // Start the game when page loads
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
